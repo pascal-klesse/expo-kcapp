@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
+import {useAppwrite} from "@/hooks/useAppwrite";
 
 const menuItems = [
   {
@@ -30,7 +31,7 @@ const menuItems = [
     icon: 'log-out-outline',
     onPress: async (router: any) => {
       try {
-        await account.deleteSession('current');
+        await useAppwrite().logout();
         router.replace('/');
       } catch (error) {
         console.error('Logout error:', error);

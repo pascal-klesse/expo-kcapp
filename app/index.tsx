@@ -1,19 +1,12 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
-import { Client, Account, OAuthProvider } from 'appwrite';
 import { theme } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import {InferType, object, string} from "yup";
 import {Controller, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
-
-// Initialize Appwrite
-const client = new Client()
-    .setEndpoint('YOUR_APPWRITE_ENDPOINT')
-    .setProject('YOUR_PROJECT_ID');
-
-const account = new Account(client);
+import {useAppwrite} from "@/hooks/useAppwrite";
 
 const formSchema = object({
     email: string().email({
@@ -28,6 +21,7 @@ const formSchema = object({
 
 export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
+    const {login, appleSignIn} = useAppwrite();
 
     const {control, handleSubmit, formState: {errors}} = useForm<InferType<typeof formSchema>>({
         resolver: yupResolver(formSchema),
@@ -40,7 +34,7 @@ export default function LoginScreen() {
     async function onSubmit(values: InferType<typeof formSchema>) {
         try {
             setLoading(true);
-            await account.createEmailPasswordSession(values.email, values.password);
+            await login(values.email, values.password);
             router.replace('/dashboard');
         } catch (error) {
             Alert.alert('Login Fehler', 'E-Mail oder Passwort falsch');
@@ -51,8 +45,7 @@ export default function LoginScreen() {
 
     const handleAppleSignIn = async () => {
         try {
-            setLoading(true);
-            await account.createOAuth2Session(OAuthProvider.Apple);
+            appleSignIn();
             router.replace('/dashboard');
         } catch (error) {
             Alert.alert('Apple Sign In Fehler', 'Bitte versuche es später erneut');
