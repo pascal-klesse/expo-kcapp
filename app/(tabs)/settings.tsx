@@ -1,11 +1,11 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
-import {useAppwrite} from "@/hooks/useAppwrite";
+import {AuthContext} from "@/contexts/AuthContext";
 
-const menuItems = [
+const menuItems = (logout: () => Promise<void>) => [
   {
     title: 'Profil bearbeiten',
     icon: 'person-outline',
@@ -29,10 +29,9 @@ const menuItems = [
   {
     title: 'Ausloggen',
     icon: 'log-out-outline',
-    onPress: async (router: any) => {
+    onPress: async () => {
       try {
-        await useAppwrite().logout();
-        router.replace('/');
+        await logout();
       } catch (error) {
         console.error('Logout error:', error);
       }
@@ -43,6 +42,7 @@ const menuItems = [
 
 export default function Settings() {
   const router = useRouter();
+  const {logout} = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
@@ -58,11 +58,11 @@ export default function Settings() {
       </View>
 
       <View style={styles.menuContainer}>
-        {menuItems.map((item, index) => (
+        {menuItems(logout).map((item, index) => (
           <TouchableOpacity
             key={index}
             style={styles.menuItem}
-            onPress={() => item.onPress(router)}
+            onPress={() => item.onPress()}
           >
             <View style={styles.menuItemContent}>
               <Ionicons
