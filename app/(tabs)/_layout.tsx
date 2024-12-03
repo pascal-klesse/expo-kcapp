@@ -1,43 +1,89 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
-
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { theme } from '@/constants/theme';
+import { CustomHeader } from '@/components/CustomHeader';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.muted,
+        header: ({ route, options }) => (
+          <CustomHeader
+            title={options.headerTitle as string || options.title || route.name}
+            rightElement={
+              route.name === 'list' ? (
+                <TouchableOpacity>
+                  <Ionicons name="add" size={24} color={theme.colors.foreground} />
+                </TouchableOpacity>
+              ) : undefined
+            }
+          />
+        ),
+        tabBarStyle: {
+          backgroundColor: 'transparent',
+          borderTopWidth: 1,
+          borderColor: theme.colors.border,
+          elevation: 0,
+          height: 70,
+          paddingBottom: 0,
+          paddingTop: 3,
+          shadowOpacity: 0,
+          position: 'absolute',
+        },
+        tabBarItemStyle: {
+          paddingBottom: 0,
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '500',
+          lineHeight: 10,
+        },
+        tabBarIconStyle: {
+          marginBottom: 4,
+        },
       }}>
       <Tabs.Screen
-        name="index"
+        name="dashboard"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Dashboard',
+          headerTitle: 'Übersicht',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="stats-chart-outline" size={20} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="list"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Liste',
+          headerTitle: 'Strafen',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="list-outline" size={20} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="catalog"
+        options={{
+          title: 'Katalog',
+          headerTitle: 'Strafenkatalog',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="book-outline" size={20} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Mehr',
+          headerTitle: 'Einstellungen',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="ellipsis-horizontal" size={20} color={color} />
+          ),
         }}
       />
     </Tabs>
