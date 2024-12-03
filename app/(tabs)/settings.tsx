@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../../constants/theme';
+import { theme } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 
 const menuItems = [
@@ -67,12 +67,12 @@ export default function Settings() {
               <Ionicons
                 name={item.icon as any}
                 size={20}
-                color={item.danger ? theme.colors.error : theme.colors.foreground}
+                color={item.danger ? theme.colors.destructive : theme.colors.foreground}
               />
               <Text
                 style={[
                   styles.menuItemText,
-                  item.danger && { color: theme.colors.error },
+                  item.danger && { color: theme.colors.destructive },
                 ]}
               >
                 {item.title}

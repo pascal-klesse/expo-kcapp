@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { theme } from '../../constants/theme';
+import { theme } from '@/constants/theme';
 
 type FineEntry = {
   id: string;

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { theme } from '../../constants/theme';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { theme } from '@/constants/theme';
 import { LineChart } from 'react-native-chart-kit';
 import { useWindowDimensions } from 'react-native';
 
