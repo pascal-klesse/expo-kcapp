@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
 import { Client, Account, OAuthProvider } from 'appwrite';
-import { theme } from '../constants/theme';
+import { theme } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import {InferType, object, string} from "yup";
+import {Controller, useForm} from "react-hook-form";
+import {yupResolver} from "@hookform/resolvers/yup";
 
 // Initialize Appwrite
 const client = new Client()
@@ -12,22 +15,39 @@ const client = new Client()
 
 const account = new Account(client);
 
+const formSchema = object({
+    email: string().email({
+        message: 'Please enter a valid email address.',
+    }).required({
+        message: 'Email is required.',
+    }),
+    password: string().min(5, {
+        message: 'Password must be at least 5 characters.',
+    }).required(),
+});
+
 export default function LoginScreen() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleLogin = async () => {
+    const {control, handleSubmit, formState: {errors}} = useForm<InferType<typeof formSchema>>({
+        resolver: yupResolver(formSchema),
+        defaultValues: {
+            email: '',
+            password: ''
+        },
+    });
+
+    async function onSubmit(values: InferType<typeof formSchema>) {
         try {
             setLoading(true);
-            await account.createEmailPasswordSession(email, password);
+            await account.createEmailPasswordSession(values.email, values.password);
             router.replace('/dashboard');
         } catch (error) {
             Alert.alert('Login Fehler', 'E-Mail oder Passwort falsch');
         } finally {
             setLoading(false);
         }
-    };
+    }
 
     const handleAppleSignIn = async () => {
         try {
@@ -48,31 +68,47 @@ export default function LoginScreen() {
                 <Text style={styles.subtitle}>Melde dich an um fortzufahren</Text>
                 
                 <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="E-Mail"
-                        placeholderTextColor={theme.colors.muted}
-                        value={email}
-                        onChangeText={setEmail}
-                        autoCapitalize="none"
-                        keyboardType="email-address"
+                    <Controller
+                        control={control}
+                        rules={{
+                            required: true,
+                        }}
+                        render={({field}) => (
+                            <TextInput
+                                style={styles.input}
+                                placeholder="E-Mail"
+                                placeholderTextColor={theme.colors.muted}
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                                {...field}
+                            />
+                        )}
+                        name="email"
                     />
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Passwort"
-                        placeholderTextColor={theme.colors.muted}
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
+                    <Controller
+                        control={control}
+                        rules={{
+                            required: true,
+                        }}
+                        render={({field}) => (
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Passwort"
+                                placeholderTextColor={theme.colors.muted}
+                                secureTextEntry
+                                {...field}
+                            />
+                        )}
+                        name="password"
                     />
                 </View>
 
                 <TouchableOpacity 
                     style={styles.primaryButton} 
-                    onPress={handleLogin}
+                    onPress={handleSubmit(onSubmit)}
                     disabled={loading}
                 >
                     <Text style={styles.primaryButtonText}>
