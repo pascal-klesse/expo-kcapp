@@ -7,7 +7,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AuthContextProvider from "@/contexts/AuthContext";
-import AuthStackRouter from "@/routers/AuthStackRouter";
+import {Stack} from "expo-router";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -34,8 +34,12 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AuthContextProvider>
-        <AuthStackRouter />
+        <AuthContextProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{headerShown: false}} />
+            <Stack.Screen name="(auth)" options={{headerShown: false}}/>
+            <Stack.Screen name="+not-found"/>
+          </Stack>
       </AuthContextProvider>
       <StatusBar style="auto" />
     </ThemeProvider>

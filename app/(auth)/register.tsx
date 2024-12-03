@@ -1,49 +1,31 @@
 import React, {useContext, useState} from 'react';
 import {View} from 'react-native';
-import {theme} from '@/constants/theme';
-import {Ionicons} from '@expo/vector-icons';
-import {InferType, object, string} from "yup";
 import {useForm} from "react-hook-form";
-import {yupResolver} from "@hookform/resolvers/yup";
 import {AuthContext} from "@/contexts/AuthContext";
 import Button from "@/components/Button/Button";
 import FormTextInput from "@/components/FormTextInput/FormTextInput";
-import Divider from "@/components/Divider/Divider";
 import Headline from "@/components/Headline/Headline";
 import {useGlobalStyles} from "@/styles/useGlobalStyles";
-import {router, useNavigation} from "expo-router";
+import Divider from "@/components/Divider/Divider";
+import {ValidationMessages} from "@/config/ValidationMessages";
+import {router} from "expo-router";
+import {Ionicons} from "@expo/vector-icons";
+import {theme} from "@/constants/theme";
 
-const formSchema = object({
-    email: string().email({
-        message: 'Please enter a valid email address.',
-    }).required({
-        message: 'Email is required.',
-    }),
-    name: string().email({
-        message: 'Please enter a valid name.',
-    }).required({
-        message: 'Name is required.',
-    }),
-    password: string().min(5, {
-        message: 'Password must be at least 5 characters.',
-    }).required(),
-});
+type FormType = {
+    email: string,
+    password: string,
+    name: string
+}
 
 export default function RegisterScreen() {
     const [loading, setLoading] = useState(false);
     const {register} = useContext(AuthContext);
     const styles = useGlobalStyles();
 
-    const {control, handleSubmit, formState: {errors}} = useForm<InferType<typeof formSchema>>({
-        resolver: yupResolver(formSchema),
-        defaultValues: {
-            email: '',
-            password: '',
-            name: ''
-        },
-    });
+    const {control, handleSubmit} = useForm<FormType>();
 
-    async function onSubmit(values: InferType<typeof formSchema>) {
+    async function onSubmit(values: FormType) {
         try {
             setLoading(true);
             await register(values.email, values.password, values.name);
@@ -57,28 +39,35 @@ export default function RegisterScreen() {
             <View style={styles.formContainer}>
                 <Headline type={'h1'} text={'Registrieren'}/>
                 <Headline type={'h2'} text={'Fülle das Formular aus, um dich zu registrieren.'}/>
-                <FormTextInput control={control}
-                               name={'email'}
-                               placeholder={'E-Mail'}
-                               autoCapitalize={'none'}
-                               keyboardType={'email-address'}
-                               required
+                <FormTextInput<FormType> control={control}
+                                         name={'email'}
+                                         placeholder={'E-Mail'}
+                                         autoCapitalize={'none'}
+                                         keyboardType={'email-address'}
+                                         rules={{required: ValidationMessages.required.email}}
                 />
-                <FormTextInput control={control}
-                               name={'name'}
-                               placeholder={'Name'}
-                               required
+                <FormTextInput<FormType> control={control}
+                                         name={'name'}
+                                         placeholder={'Name'}
+                                         rules={{required: ValidationMessages.required.name}}
                 />
-                <FormTextInput control={control}
-                               name={'password'}
-                               placeholder={'Passwort'}
-                               secureTextEntry
-                               required
+                <FormTextInput<FormType> control={control}
+                                         name={'password'}
+                                         placeholder={'Passwort'}
+                                         secureTextEntry
+                                         rules={{required: ValidationMessages.required.password}}
                 />
                 <Button
                     text={loading ? 'Lädt...' : 'Registrieren'}
                     type={'primary'}
                     onPress={handleSubmit(onSubmit)}
+                />
+                <Divider/>
+                <Button
+                    text={'Zurück zum Login'}
+                    type={'secondary'}
+                    icon={<Ionicons name="arrow-back" size={24} color={theme.colors.foreground}/>}
+                    onPress={router.back}
                 />
             </View>
         </View>

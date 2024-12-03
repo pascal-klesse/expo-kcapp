@@ -13,5 +13,11 @@ export const useFormTextInputStyles = () => {
             color: theme.colors.foreground,
             fontSize: 16,
         },
+        errorText: {
+            paddingLeft: 16,
+            paddingTop: 8,
+            color: theme.colors.destructive,
+            marginBottom: 10,
+        }
     });
 }

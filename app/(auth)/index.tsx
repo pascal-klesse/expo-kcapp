@@ -2,9 +2,7 @@ import React, {useContext, useState} from 'react';
 import {View} from 'react-native';
 import {theme} from '@/constants/theme';
 import {Ionicons} from '@expo/vector-icons';
-import {InferType, object, string} from "yup";
 import {useForm} from "react-hook-form";
-import {yupResolver} from "@hookform/resolvers/yup";
 import {AuthContext} from "@/contexts/AuthContext";
 import Button from "@/components/Button/Button";
 import FormTextInput from "@/components/FormTextInput/FormTextInput";
@@ -12,32 +10,21 @@ import Divider from "@/components/Divider/Divider";
 import Headline from "@/components/Headline/Headline";
 import {useGlobalStyles} from "@/styles/useGlobalStyles";
 import {router, useNavigation} from "expo-router";
+import {ValidationMessages} from "@/config/ValidationMessages";
 
-const formSchema = object({
-    email: string().email({
-        message: 'Please enter a valid email address.',
-    }).required({
-        message: 'Email is required.',
-    }),
-    password: string().min(5, {
-        message: 'Password must be at least 5 characters.',
-    }).required(),
-});
+type FormType = {
+    email: string,
+    password: string
+}
 
 export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
     const {login, appleSignIn} = useContext(AuthContext);
     const styles = useGlobalStyles();
 
-    const {control, handleSubmit, formState: {errors}} = useForm<InferType<typeof formSchema>>({
-        resolver: yupResolver(formSchema),
-        defaultValues: {
-            email: '',
-            password: ''
-        },
-    });
+    const {control, handleSubmit} = useForm<FormType>();
 
-    async function onSubmit(values: InferType<typeof formSchema>) {
+    async function onSubmit(values: FormType) {
         try {
             setLoading(true);
             await login(values.email, values.password);
@@ -51,18 +38,18 @@ export default function LoginScreen() {
             <View style={styles.formContainer}>
                 <Headline type={'h1'} text={'Willkommen zurück'}/>
                 <Headline type={'h2'} text={'Melde dich an um fortzufahren'}/>
-                <FormTextInput control={control}
-                               name={'email'}
-                               placeholder={'E-Mail'}
-                               autoCapitalize={'none'}
-                               keyboardType={'email-address'}
-                               required
+                <FormTextInput<FormType> control={control}
+                                         name={'email'}
+                                         placeholder={'E-Mail'}
+                                         autoCapitalize={'none'}
+                                         keyboardType={'email-address'}
+                                         rules={{required: ValidationMessages.required.email}}
                 />
-                <FormTextInput control={control}
-                               name={'password'}
-                               placeholder={'Passwort'}
-                               secureTextEntry
-                               required
+                <FormTextInput<FormType> control={control}
+                                         name={'password'}
+                                         placeholder={'Passwort'}
+                                         secureTextEntry
+                                         rules={{required: ValidationMessages.required.password}}
                 />
                 <Button
                     text={loading ? 'Lädt...' : 'Anmelden'}
@@ -70,7 +57,7 @@ export default function LoginScreen() {
                     onPress={handleSubmit(onSubmit)}
                 />
                 <Divider text={'ODER'}/>
-                <View style={{ gap: 12 }}>
+                <View style={{gap: 12}}>
                     <Button
                         text={'Mit Apple fortfahren'}
                         type={'secondary'}
