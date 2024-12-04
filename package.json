@@ -3,6 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+    "start:local": "NODE_ENV=local npm run start",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -43,8 +44,7 @@
     "react-native-screens": "~4.1.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.19.13",
-    "react-native-webview": "13.12.2",
-    "yup": "^1.4.0"
+    "react-native-webview": "13.12.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
