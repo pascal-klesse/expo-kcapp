@@ -4,6 +4,7 @@ import {AppwriteClient} from "@/api/Appwrite";
 import {OAuthProvider} from "appwrite";
 import {Alert} from "react-native";
 import {router} from "expo-router";
+import {useCreatePlayerMutation} from "@/hooks/api/useCreatePlayer";
 
 type AuthContextType = {
     user?: Models.User<Models.Preferences>,
@@ -24,6 +25,8 @@ export default function AuthContextProvider({children}: PropsWithChildren<{}>) {
     const [user, setUser] = useState<Models.User<Models.Preferences> | undefined>();
     const account = new Account(AppwriteClient);
 
+    const {mutate: createPlayer} = useCreatePlayerMutation();
+
     useEffect(() => {
         refreshUser();
     }, []);
@@ -32,7 +35,8 @@ export default function AuthContextProvider({children}: PropsWithChildren<{}>) {
         try {
             const user = await account.get();
             setUser(user);
-            router.replace('/dashboard')
+            router.replace('/dashboard');
+            return user;
         } catch (error) {
             console.error(error);
             router.replace('/')
@@ -52,6 +56,11 @@ export default function AuthContextProvider({children}: PropsWithChildren<{}>) {
     const register = async (email: string, password: string, name: string) => {
         try {
             await account.create(ID.unique(), email, password, name);
+            // Todo: maybe better create via admin view
+            createPlayer({
+                email,
+                name
+            });
             await login(email, password);
         } catch (error) {
             console.error(error);
@@ -72,6 +81,7 @@ export default function AuthContextProvider({children}: PropsWithChildren<{}>) {
 
     const appleSignIn = async () => {
         try {
+            // Todo: Possible to create player once here as well?
             account.createOAuth2Session(OAuthProvider.Apple);
             await refreshUser();
         } catch (error) {
